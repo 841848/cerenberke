@@ -83,21 +83,50 @@
     const input = document.getElementById('film-input');
     const list = document.getElementById('film-list');
 
+    // localStorage'tan listeyi yükle
+    const loadList = () => {
+      const films = JSON.parse(localStorage.getItem('films')) || [];
+      films.forEach(addFilmToList);
+    };
+
+    // listeye film ekle ve kaydet
+    const addFilmToList = (filmName) => {
+      const li = document.createElement('li');
+      li.innerHTML = `${filmName} <button class="delete">Sil</button>`;
+      list.appendChild(li);
+    };
+
+    // film silindiğinde güncelle
+    const removeFilmFromStorage = (filmName) => {
+      let films = JSON.parse(localStorage.getItem('films')) || [];
+      films = films.filter(film => film !== filmName);
+      localStorage.setItem('films', JSON.stringify(films));
+    };
+
+    // sayfa yüklenince eski filmleri getir
+    loadList();
+
+    // yeni film ekleme
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       const film = input.value.trim();
       if (film) {
-        const li = document.createElement('li');
-        li.innerHTML = `${film} <button class="delete">Sil</button>`;
-        list.appendChild(li);
+        addFilmToList(film);
+        let films = JSON.parse(localStorage.getItem('films')) || [];
+        films.push(film);
+        localStorage.setItem('films', JSON.stringify(films));
         input.value = '';
         input.focus();
       }
     });
 
+    // silme işlemi
     list.addEventListener('click', function (e) {
       if (e.target.classList.contains('delete')) {
-        e.target.parentElement.remove();
+        const li = e.target.parentElement;
+        const filmName = li.firstChild.textContent.trim();
+        removeFilmFromStorage(filmName);
+        li.remove();
       }
     });
   </script>
